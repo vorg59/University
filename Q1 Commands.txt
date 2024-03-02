@@ -1,0 +1,2 @@
+cp -r /home/woro/q1test/OS /home/woro/q1test/newOS
+sort < data.txt > output.txt
