@@ -22,19 +22,12 @@ void Tokenization(string input, char* argv[])
 	{
 		if (input[i] == '\0')
 		    break;
-		    
-		
-		    
-		//chatgpt===============================================================================
 		if (input[i] == '<')
 		{
-		    // Input redirection detected
 		    redirectInput = true;
-		    i++; // Skip the '<' symbol
+		    i++; 
 		    while (i < strlen(input.c_str()) && input[i] == ' ')
-		        i++; // Skip spaces after '<'
-
-		    // Read the input filename
+		        i++;
 		    int filenameStart = i;
 		    while (i < strlen(input.c_str()) && input[i] != ' ')
 		        i++;
@@ -42,22 +35,15 @@ void Tokenization(string input, char* argv[])
 		}
 		if (input[i] == '>')
 		{
-		    // Output redirection detected
 		    redirectOutput = true;
-		    i++; // Skip the '>' symbol
+		    i++;
 		    while (i < strlen(input.c_str()) && input[i] == ' ')
-		        i++; // Skip spaces after '>'
-
-		    // Read the output filename
+		        i++;
 		    int filenameStart = i;
 		    while (i < strlen(input.c_str()) && input[i] != ' ')
 		        i++;
 		    outputFileName = input.substr(filenameStart, i - filenameStart);
 		}
-		//chatgpt===============================================================================
-		
-		
-		
 		if (input[i] == '&')
 			i++;
 		else if (input[i] == ' ')
@@ -99,43 +85,29 @@ int main()
 	cout << "\033[38;2;255;0;0mworo@shell\033[0m:\033[34m~\033[0m$ ";
 	getline(cin, input);
 	input += '\0';
-	//cout<<input;
 	if(containsExit(input))
 		return 0;
-		
-	//2	
+
 	Tokenization(input, argv);
 	//PrintCommands(argv);
 	
-	//3
 	int ret = fork( );
 	if (ret == 0) 
 	{
 		//cout<<"			IN CHILD BLOCK\n";
 		
-		
-		
-		//chatgpt===============================================================================
-		// Input redirection
 		if (redirectInput)
 		{
 		    int inputFile = open(inputFileName.c_str(), O_RDONLY);
 		    dup2(inputFile, STDIN_FILENO);
 		    close(inputFile);
 		}
-
-		// Output redirection
 		if (redirectOutput)
 		{
 		    int outputFile = open(outputFileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
 		    dup2(outputFile, STDOUT_FILENO);
 		    close(outputFile);
 		}
-		//chatgpt===============================================================================
-		
-		
-		
-		redirectInput = redirectOutput = false;
 		
 		execvp(argv[0],argv);
 		exit(0);
@@ -143,7 +115,7 @@ int main()
 	else
 	{
 		//cout<<"			IN PARENT BLOCK\n";
-		//4
+		
 		if (input.find("&") == string::npos)
 			wait(NULL);
 		else 
