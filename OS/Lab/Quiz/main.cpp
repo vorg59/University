@@ -33,7 +33,7 @@ int* find()
 			Length = lineLength;
 		}
 	}
-	cout<<"Number of Lines = "<<numLines<<endl;
+	cout<<"Number of Lines = "<<numLines-1<<endl;
 	cout<<"Line Length = "<<Length<<endl;
 	A[0]=numLines-1;
 	A[1]=Length;
@@ -71,7 +71,7 @@ string rem(char row[25][50], int r, int c)
 	string s;
 	for (int i = 0; i < r; i++)
 	{
-		for (int j = 0; j < c; j++)
+		for (int j = 0; j < 25; j++)
 		{
 			if (row[i][j] != '0' && row[i][j] != '1' && row[i][j] != '2' && row[i][j] != '3' && row[i][j] != '4' && row[i][j] != '5' && row[i][j] != '6' && row[i][j] != '7' && row[i][j] != '8' && row[i][j] != '9')
 			{
@@ -92,6 +92,7 @@ int main()
 	int*arr=find();
 	int c=arr[1];
 	int r=arr[0];
+	cout<<"===============================\n";
 	
 	int fd[2];
 	pipe(fd);
@@ -107,9 +108,11 @@ int main()
 		for(int i = 0; i < r; i++)
 		{
 			cout<<row[i]<<" SENT\n";
-			write(fd[1], row[i], c);
+			write(fd[1], row[i], 25);
 		}
+		cout<<"===============================\n";
 		close(fd[WRITE_END]);
+		wait(NULL);
 		exit(0);
 	}
 	else
@@ -120,9 +123,10 @@ int main()
 		char row[25][50];
 		for(int i = 0; i < r; i++)
 		{
-			read(fd[READ_END], row[i], c);
+			read(fd[READ_END], row[i], 25);
 			cout<<row[i]<<" RECIEVED\n";
 		}
+		cout<<"===============================\n";
 		close(fd[READ_END]);
 		string s;
 		s=rem(row,r,c);
