@@ -3,6 +3,7 @@
 #include "SDL2/SDL_image.h"
 #include "RenderWindow.hpp"
 #include "Entity.hpp"
+#include "threads.hpp"
 using namespace std;
 
 RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h):window(NULL), renderer(NULL)
@@ -53,6 +54,13 @@ void RenderWindow::render(Entity& p_entity, float p_mag)
     dst.h=p_entity.getcurrentFrame().h*p_mag;
 
     SDL_RenderCopy(renderer, p_entity.getTex(), &src, &dst);
+}
+void* RenderWindow::threadrender(void* tparam)
+{
+    ThreadParamRender *param = static_cast<ThreadParamRender*>(tparam);
+    param->R->render(param->E, 1);
+    delete param;
+    return NULL;
 }
 
 void RenderWindow::display()

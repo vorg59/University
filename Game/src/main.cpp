@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         cout << "IMG_init has failed. Error: " << SDL_GetError() << endl;
 
     int Window_Width = 800;
-    int Window_Height = 600;
+    int Window_Height = 400;
     float paddle_Mag = 1;
     int paddle_Speed = paddle_Mag * 14;
 
@@ -70,21 +70,51 @@ int main(int argc, char *argv[])
                 if(event.type == SDL_QUIT)
                     M.setState();
                     // gameRunning = false;
-                M.Input(event);
+                //M.Input(event);
+                pthread_t thread;
+                ThreadParamInput* param = new ThreadParamInput;
+                param->M = &M;
+                param->event = event; 
+                pthread_create(&thread, NULL, &Movement::threadInput, param);
             }
             accumalator -= timeStep;
         }
 
         window.clear();
         //window.render(background, 0.5);
-        M.Ball_Move(Ball, paddleL, paddleR, Window_Width, Window_Height);
-        M.Paddle_Move(paddleL, 1, Window_Height);
-        M.Paddle_Move(paddleR, 0, Window_Height);
+
+        // M.Ball_Move(Ball, paddleL, paddleR, Window_Width, Window_Height);
+        pthread_t threadBall;
+        ThreadParamBall* paramB = new ThreadParamBall{&M, Ball, paddleL, paddleR, Window_Width, Window_Height};
+        pthread_create(&threadBall, NULL, &Movement::threadBall_Move, paramB);
+        // M.Paddle_Move(paddleL, 1, Window_Height);
+        pthread_t threadP1;
+        ThreadParamPaddle* paramP1 = new ThreadParamPaddle{&M, paddleL, true, Window_Height};
+        pthread_create(&threadP1, NULL, &Movement::threadPaddle_Move, paramP1);
+        // M.Paddle_Move(paddleR, 0, Window_Height);
+        pthread_t threadP2;
+        ThreadParamPaddle* paramP2 = new ThreadParamPaddle{&M, paddleR, false, Window_Height};
+        pthread_create(&threadP2, NULL, &Movement::threadPaddle_Move, paramP2);
+
         window.render(Ball, paddle_Mag);
+        // pthread_t threadrenderB;
+        // ThreadParamRender* paramRenB = new ThreadParamRender{&window, Ball, paddle_Mag};
+        // pthread_create(&threadrenderB, NULL, &RenderWindow::threadrender, paramRenB);
+
         window.render(paddleL, paddle_Mag);
+        // pthread_t threadrenderP1;
+        // ThreadParamRender* paramRenP1 = new ThreadParamRender{&window, paddleL, paddle_Mag};
+        // pthread_create(&threadrenderP1, NULL, &RenderWindow::threadrender, paramRenP1);
         window.render(paddleR, paddle_Mag);
         utils::PrintScores(Numbers, window, M, Window_Width, Window_Height);
+
+        //make window.render() p_thread 
+        //make M.Input() p_thread XXX
+        //make M.Ball_Move() p_thread XXX
+        //make M.Paddle_Move() p_thread XXX
+        //make M.Paddle_Move() p_thread XXX
         
+
 
         window.display();
 
