@@ -3,6 +3,7 @@
 #include "SDL2/SDL_image.h"
 #include "Entity.hpp"
 #include "Math.hpp"
+#include <vector>
 using namespace std;
 
 Entity::Entity(Vector2f p_pos, SDL_Texture* p_tex):pos(p_pos), tex(p_tex)

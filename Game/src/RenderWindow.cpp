@@ -38,7 +38,7 @@ void RenderWindow::clear()
     SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(Entity& p_entity)
+void RenderWindow::render(Entity& p_entity, float p_mag)
 {
     SDL_Rect src;
     src.x=p_entity.getcurrentFrame().x;
@@ -47,10 +47,10 @@ void RenderWindow::render(Entity& p_entity)
     src.h=p_entity.getcurrentFrame().h;
 
     SDL_Rect dst;
-    dst.x= p_entity.getPos().x/1;
-    dst.y= p_entity.getPos().y/1;
-    dst.w=p_entity.getcurrentFrame().w/1;
-    dst.h=p_entity.getcurrentFrame().h/1;
+    dst.x= p_entity.getPos().x/p_mag;
+    dst.y= p_entity.getPos().y/p_mag;
+    dst.w=p_entity.getcurrentFrame().w*p_mag;
+    dst.h=p_entity.getcurrentFrame().h*p_mag;
 
     SDL_RenderCopy(renderer, p_entity.getTex(), &src, &dst);
 }
