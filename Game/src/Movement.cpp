@@ -13,7 +13,7 @@ Movement::Movement(int p_speed)
 	OLDP1_Score = P1_Score = OLDP2_Score = P2_Score = 0; 
 	Ball_Velocity_X = 5;
 	Ball_Velocity_Y = 5;
-	GokuSpeed = p_speed;
+	GokuSpeed = resetspeed = p_speed;
 	facing = true;
 	wPressed = sPressed = iPressed = kPressed = false;
 }
@@ -118,6 +118,7 @@ void* Movement::threadPaddle_Move(void *tparam)
 
 void Movement::Ball_Move(Entity& B, Entity& P1, Entity& P2, int Window_Width, int Window_Height)
 {
+
 	Vector2f pos_ball = B.getPos();
 	// cout<<pos_ball.x<<endl;
 	pos_ball.x += Ball_Velocity_X;
@@ -128,6 +129,7 @@ void Movement::Ball_Move(Entity& B, Entity& P1, Entity& P2, int Window_Width, in
 
 	if(pos_ball.x <= 0)
 	{
+		GokuSpeed = resetspeed;
 		Ball_Velocity_X = 5;
 		Ball_Velocity_Y = 5;
 		P2_Score++;
@@ -142,6 +144,7 @@ void Movement::Ball_Move(Entity& B, Entity& P1, Entity& P2, int Window_Width, in
 	}
 	if(pos_ball.x >= Window_Width)
 	{
+		GokuSpeed = resetspeed;
 		Ball_Velocity_X = 5;
 		Ball_Velocity_Y = 5;
 		P1_Score++;
@@ -160,16 +163,18 @@ void Movement::Ball_Move(Entity& B, Entity& P1, Entity& P2, int Window_Width, in
 
 	if(pos_ball.x <= 32 && pos_ball.y >= P1.getPos().y && pos_ball.y < P1.getPos().y + 128)
 	{
+		GokuSpeed+=0.5;
 		pos_ball.x = 32;
-		Ball_Velocity_X-=2;
-		Ball_Velocity_Y-=4;
+		 Ball_Velocity_X-=2;
+		// Ball_Velocity_Y-=4;
 		Ball_Velocity_X = - Ball_Velocity_X;
 	}
 	if(pos_ball.x >= Window_Width - 32*2 && pos_ball.y >= P2.getPos().y && pos_ball.y < P2.getPos().y + 128)
 	{
+		GokuSpeed+=0.5;
 		pos_ball.x = Window_Width - 64;
-		Ball_Velocity_X+=2;
-		Ball_Velocity_Y+=4;
+		 Ball_Velocity_X+=2;
+		// Ball_Velocity_Y+=4;
 		Ball_Velocity_X = - Ball_Velocity_X;
 	}
 	B.setPos(pos_ball);

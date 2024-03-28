@@ -22,6 +22,8 @@ private:
 	bool kPressed;
 	bool facing;
 	float GokuSpeed;
+	float resetspeed;
+
 
 	int Ball_Velocity_X;
 	int Ball_Velocity_Y;

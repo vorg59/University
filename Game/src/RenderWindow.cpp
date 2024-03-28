@@ -58,7 +58,7 @@ void RenderWindow::render(Entity& p_entity, float p_mag)
 void* RenderWindow::threadrender(void* tparam)
 {
     ThreadParamRender *param = static_cast<ThreadParamRender*>(tparam);
-    param->R->render(param->E, 1);
+    param->R->render(param->E, param->mag);
     delete param;
     return NULL;
 }

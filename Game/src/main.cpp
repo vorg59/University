@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
     if (! (IMG_Init(IMG_INIT_PNG)))
         cout << "IMG_init has failed. Error: " << SDL_GetError() << endl;
 
-    int Window_Width = 800;
-    int Window_Height = 400;
+    int Window_Width = 1280;
+    int Window_Height = 600;
     float paddle_Mag = 1;
     int paddle_Speed = paddle_Mag * 14;
 
@@ -30,9 +30,9 @@ int main(int argc, char *argv[])
         utils::Populate(Numbers, window);
     }
 
-    SDL_Texture* Blizzard = window.loadTexture("res/gfx/G.gif");
+    SDL_Texture* Blizzard = window.loadTexture("res/gfx/pur.png");
     Entity background(Vector2f(0, 0), Blizzard);
-    background.setcurrentFrame(0, 0, 1080, 1080);
+    background.setcurrentFrame(0, 0, 1024, 576);
 
     SDL_Texture* ball = window.loadTexture("res/gfx/Bball.jpg");
     Entity Ball(Vector2f(Window_Width/2, Window_Height/2+50), ball);// x_cord, y_cord
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     Entity paddleL(Vector2f(0, 0), paddle);// x_cord, y_cord
     paddleL.setcurrentFrame(0, 0, 32, 128);
 
-    paddle = window.loadTexture("res/gfx/BpaddleR.jpg");
+    paddle = window.loadTexture("res/gfx/BpaddleL.jpg");
     Entity paddleR(Vector2f(Window_Width - 32, 0), paddle);// x_cord, y_cord
     paddleR.setcurrentFrame(0, 0, 32, 128);
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
         }
 
         window.clear();
-        //window.render(background, 0.5);
+        // window.render(background, 1);
 
         // M.Ball_Move(Ball, paddleL, paddleR, Window_Width, Window_Height);
         pthread_t threadBall;
