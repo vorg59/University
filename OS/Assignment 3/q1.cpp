@@ -9,31 +9,25 @@
 #include <vector>
 #include <limits>
 using namespace std;
-
-string input;
-bool redirectInput;
-bool redirectOutput;
-string inputFileName, outputFileName;
-bool skip = false;
+//sort f1.txt | grep box -i
+//cat fifo1 | grep ls | wc -l &
+//sort ls.dat | tee fifo1 | wc -l
+int argvSize = 15;
 std::vector<string> history;
-std::vector<string> history_backup;
-bool usePipe;
+bool redirectInput, redirectOutput, skip, usePipe;
+string input, inputFileName, outputFileName, red = "\033[91m", blue = "\033[34m", orange = "\033[38;5;208m", reset = "\033[0m", shellTXT = red + "woro@shell" + reset + ":" + blue + "~" + reset + "$ ", bgshellTXT = orange + "(bg)" + reset + ":" + blue + "~" + reset + "$ ";
 
-void Tokenization(string input, char* argv[], char* argv_after[])
+void Tokenization(string input, char* argv[])
 {
-	//cout<<"\""<<input<<"\" to be tokened\n";
 	int r = 0;
 	int c = 0;
-
 	for (int i = 0; i < strlen(input.c_str()); i++)
 	{
 		if (input[i] == '&')
-		{
 			i++;
-		}
-		if (input[i] == '\0')
+		else if (input[i] == '\0')
 		    break;
-		if (input[i] == '<')
+		else if (input[i] == '<')
 		{
 		    redirectInput = true;
 		    i++; 
@@ -44,7 +38,7 @@ void Tokenization(string input, char* argv[], char* argv_after[])
 		        i++;
 		    inputFileName = input.substr(filenameStart, i - filenameStart);
 		}
-		if (input[i] == '>')
+		else if (input[i] == '>')
 		{
 		    redirectOutput = true;
 		    i++;
@@ -75,7 +69,7 @@ void Tokenization(string input, char* argv[], char* argv_after[])
 
 void PrintCommands(char* argv[])
 {
-	for(int i=0; i<10 && argv[i]!=NULL; i++)
+	for(int i=0; i<argvSize && argv[i]!=NULL; i++)
 		cout<<"command "<<i+1<<": "<<argv[i]<<endl;
 }
 
@@ -83,10 +77,7 @@ void PrintHistory()
 {
 	int count = history.size();
     for (int i = count - 1; i >= 0; i--)
-	{
 		cout<<i+1<<": "<<history[i]<<endl;
-	}
-	
 }
 
 bool containsExit(string input, string s = "exit") 
@@ -97,9 +88,9 @@ bool containsExit(string input, string s = "exit")
 
 void rightShift(char* argv[])
 {
-	char* new_argv[4] = {NULL};
 	string command;
-	for (int i = 0; i < 12; i++)
+	char* new_argv[4] = {NULL};
+	for (int i = 0; i < argvSize; i++)
 	{
 		if(argv[i]==NULL)
 			break;
@@ -107,74 +98,57 @@ void rightShift(char* argv[])
 		command+=' ';
 		argv[i]=NULL;
 	}
-	//cout<<"CMD = "<<command<<endl;
+
 	string t = "./t";
 	new_argv[0]=strdup(t.c_str());
 	new_argv[1]=strdup(command.c_str());
 
 	for (int i = 0; i < 2; i++)
-	{
 		argv[i] = new_argv[i];
-	}
-	
-	// string s = "./test.cpp";
-	// new_argv[0] = strdup(s.c_str());
-
-	// for (int i = 0; i < 10; ++i) 
-	// {
-    // 	argv[i] = new_argv[i];
-    // }
 }
-
-string shellTXT = "\033[38;2;255;0;0mworo@shell\033[0m:\033[34m~\033[0m$ ";
 
 int main()
 {
 	cout << shellTXT;
 	getline(cin, input);
-	int fd[2];
-	usePipe = false;
-	redirectInput = false;
-	redirectOutput = false;
-	char* argv[]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-	char* argv_after[]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-	//1
 	input += '\0';
+
+	char* argv[argvSize]={NULL};
+	skip = false, usePipe = false, redirectInput = false, redirectOutput = false;
+	
 	if(containsExit(input))
 		return 0;
-	if(containsExit(input, "history"))
+	else if(containsExit(input, "history"))
 	{	
 		PrintHistory();
 		skip = true;
 	}
 	if(!skip)
 	{
-		if(containsExit(input, "!!") || containsExit(input, "!"))
+		bool cond_1 = containsExit(input, "!!"), cond_2 = containsExit(input, "!");
+		if(cond_1 || cond_2)
 		{
-			if(containsExit(input, "!!"))
+			if(cond_1)
 			{
 				if(!history.empty())
 				{
 					//cout<<history[history.size() - 1]<<" to be executed\n";
-					Tokenization(history[history.size() - 1], argv, argv_after);
-					input = history[history.size() - 1];
-					if(history.size()!=10)
+					Tokenization(history[history.size() - 1], argv);
+					if(history.size()<=10)
 						history.push_back(history[history.size() - 1]);
-					//argv = history[history.size() - 1];
+					input = history[history.size() - 1];
 				}
 				else
 					cout<<"No commands in history"<<endl;
 			}
-			else if(containsExit(input, "!"))
+			else if(cond_2)
 			{
-				if(input[1] - '0'<= history.size())
+				if(input[1] - '0'<= history.size()) // to fix !0 and !10
 				{
-					//cout<<history[(input[1] - '0') - 1]<<" to be executed\n";
-					Tokenization(history[(input[1] - '0') - 1], argv, argv_after);
-					input = history[(input[1] - '0') - 1];
-					if(history.size()!=10)
+					Tokenization(history[(input[1] - '0') - 1], argv);
+					if(history.size()<=10)
 						history.push_back(history[(input[1] - '0') - 1]);
-					//argv = history[input[1] - 1];
+					input = history[(input[1] - '0') - 1];
 				}
 				else
 					cout<<"No such command in history"<<endl;
@@ -182,39 +156,26 @@ int main()
 		}
 		else
 		{
-			//cout<<"Tokening...";
-			Tokenization(input, argv, argv_after);
-			//cout<<"Tokening ended\n";
-
+			Tokenization(input, argv);
 			if(history.size()!=10)
 				history.push_back(input);
 		}
 
-		if(containsExit(input,"|") )
+		if(containsExit(input,"|"))
 		{
 			rightShift(argv);
 			usePipe = true;
-			//cout<<"to be exe by test.cpp\n\n";
 			int ret = fork();
 			if(ret==0)
-			{
 				execvp(argv[0], argv);
-			}
 			else
 			{
 				if (input.find("&") == string::npos)
 					wait(NULL);
 				else
-				{
-					cout<<"\b\b\b\b\033[38;2;255;165;0m(bg):~\033[0m$ ";
-				}
+					cout<<bgshellTXT;
 			}
 		}
-		// cout<<"Before Pipe: ";
-		//PrintCommands(argv);
-		// cout<<"After Pipe: ";
-		// PrintCommands(argv_after);
-
 		if(!usePipe)
 		{
 			int ret = fork();
@@ -236,7 +197,6 @@ int main()
 				}
 				
 				execvp(argv[0],argv);
-				exit(0);
 			}
 			else
 			{
@@ -245,18 +205,9 @@ int main()
 				if (input.find("&") == string::npos)
 					wait(NULL);
 				else
-				{
-					//printf("Executing concurrently...\n");
-					cout<<"\b\b\b\b\033[38;2;255;165;0m(bg):~\033[0m$ ";
-				} 
+					cout<<bgshellTXT;
 			}  
-		} 
-		else
-		{
-			//cout<<"skipping\n\n"; 
-
 		}
 	}
-	skip = false;
 	main();
 }
